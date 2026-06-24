@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
   "manifestVersion": "1.16",
   "version": "0.1.0",
-  "id": "REPLACE-WITH-TEAMS-APP-ID",
+  "id": "a5b73f9e-e2f0-49e6-9308-9d47f184750b",
   "packageName": "com.lcdelevator.lcdbot",
   "name": {
     "short": "LCD Bot",
@@ -25,7 +25,7 @@
   "accentColor": "#0B5CAB",
   "bots": [
     {
-      "botId": "REPLACE-WITH-BOT-APP-ID",
+      "botId": "388419bf-621b-4892-ab77-7559b5651b83",
       "scopes": ["personal", "team"],
       "supportsFiles": false,
       "isNotificationOnly": false,
