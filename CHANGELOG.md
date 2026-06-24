@@ -22,3 +22,4 @@ All notable changes to this project will be documented here.
 - Added stdout/journald-friendly logging and generic Bot Framework error handling.
 - Added `/dobinsp` guided DOB Now Safety lookup flow with Adaptive Card results.
 - Added `/ecblookup` guided ECB violation lookup flow with Adaptive Card results and DOB link/image buttons.
+- Changed `help` to return an Adaptive Card command catalog and added `commands`/`menu` aliases.
