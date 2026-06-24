@@ -1,0 +1,14 @@
+{
+  "commands": [
+    {
+      "name": "lookup",
+      "description": "Start a guided lookup prompt.",
+      "requires_confirmation": false
+    },
+    {
+      "name": "automation-example",
+      "description": "Placeholder for future write/action workflow.",
+      "requires_confirmation": true
+    }
+  ]
+}

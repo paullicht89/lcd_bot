@@ -1,0 +1,52 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "0.1.0",
+  "id": "REPLACE-WITH-TEAMS-APP-ID",
+  "packageName": "com.lcdelevator.lcdbot",
+  "name": {
+    "short": "LCD Bot",
+    "full": "LCD Elevator Teams Bot"
+  },
+  "developer": {
+    "name": "LCD Elevator IT",
+    "websiteUrl": "https://lcdbot.lcd.nyc",
+    "privacyUrl": "https://lcdbot.lcd.nyc/privacy",
+    "termsOfUseUrl": "https://lcdbot.lcd.nyc/terms"
+  },
+  "description": {
+    "short": "LCD command bot for lookups and automations.",
+    "full": "Run guided LCD Elevator lookup and automation commands from Microsoft Teams using Adaptive Cards."
+  },
+  "icons": {
+    "outline": "icons/outline.png",
+    "color": "icons/color.png"
+  },
+  "accentColor": "#0B5CAB",
+  "bots": [
+    {
+      "botId": "REPLACE-WITH-BOT-APP-ID",
+      "scopes": ["personal", "team"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal", "team"],
+          "commands": [
+            {"title": "help", "description": "Show available commands."},
+            {"title": "ping", "description": "Verify the bot is reachable."},
+            {"title": "status", "description": "Show bot service status."},
+            {"title": "lookup", "description": "Start a guided lookup prompt."}
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": [
+    "lcdbot.lcd.nyc",
+    "login.microsoftonline.com",
+    "login.microsoft.com",
+    "graph.microsoft.com"
+  ]
+}

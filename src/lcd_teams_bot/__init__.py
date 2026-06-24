@@ -1,0 +1,2 @@
+"""LCD Teams Bot package."""
+
