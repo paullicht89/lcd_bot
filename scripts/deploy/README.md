@@ -51,3 +51,31 @@ On the server, make sure:
 - nginx proxies `https://lcdbot.lcd.nyc` to `127.0.0.1:3978`.
 
 Use `docs/deployment/server_setup.md` for the service and nginx examples.
+
+## Initial Deploy With No New Commits
+
+If `main` and `production` are identical, `deploy.sh` will report that no commits are waiting and then let you continue with current `origin/production`.
+
+For the first server setup:
+
+1. Clone the repo on the server:
+
+   ```bash
+   sudo mkdir -p /srv/lcd_bot
+   sudo chown "$USER":"$USER" /srv/lcd_bot
+   git clone -b production git@github.com:paullicht89/lcd_bot.git /srv/lcd_bot
+   cd /srv/lcd_bot
+   python3 -m venv .venv
+   . .venv/bin/activate
+   python -m pip install -r requirements.txt
+   cp env.example .env
+   nano .env
+   ```
+
+2. Run `scripts/deploy/deploy.sh` locally.
+3. Choose `production`.
+4. Continue with current `origin/production`.
+5. Say `y` if you want the script to copy your local ignored `.env` to the server.
+6. Restart `lcd_bot` when prompted.
+
+If you create `.env` directly on the server, answer `n` to the ignored-file copy prompt.

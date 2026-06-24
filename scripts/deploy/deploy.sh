@@ -138,7 +138,9 @@ prompt_for_commit_selection() {
 
     if [[ ${#AVAILABLE_COMMITS[@]} -eq 0 ]]; then
         echo "No commits in main are waiting to be promoted to production."
-        exit 0
+        SELECTED_COMMITS=()
+        SKIP_PROMOTION=1
+        return
     fi
 
     echo "Commits available to promote from main to production:"
