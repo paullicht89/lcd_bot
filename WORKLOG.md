@@ -15,6 +15,7 @@
 - Documented the Teams install error that indicates an unregistered bot or missing Teams channel.
 - Added `/dobinsp` guided DOB Now Safety inspection lookup cards and API integration.
 - Added `/ecblookup` guided ECB violation lookup with Adaptive Card search/results, DOB link/image buttons, and data.cityofnewyork.us API integration.
+- Converted `help` to an Adaptive Card command catalog and added `commands`/`menu` aliases.
 
 ## Next Work
 

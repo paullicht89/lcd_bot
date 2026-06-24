@@ -12,6 +12,7 @@ from lcd_teams_bot.cards.dob_inspections import (
     dob_inspections_start_card,
 )
 from lcd_teams_bot.cards.ecb_violations import ecb_lookup_results_card, ecb_lookup_search_card
+from lcd_teams_bot.cards.help import help_card
 from lcd_teams_bot.cards.lookup import lookup_prompt_card
 from lcd_teams_bot.config import settings
 from lcd_teams_bot.services.dob_safety import DobSafetyError, search_dob_safety
@@ -39,11 +40,11 @@ def normalize_command(text: str | None) -> tuple[str, str]:
 
 
 async def help_command(turn_context: TurnContext, _: str) -> None:
-    lines = ["Available commands:"]
-    for command in COMMANDS:
-        alias_text = f" ({', '.join(command.aliases)})" if command.aliases else ""
-        lines.append(f"- `{command.name}`{alias_text}: {command.description}")
-    await turn_context.send_activity("\n".join(lines))
+    commands = (
+        (command.name, command.description, command.aliases)
+        for command in COMMANDS
+    )
+    await send_adaptive_card(turn_context, help_card(commands))
 
 
 async def ping_command(turn_context: TurnContext, _: str) -> None:
@@ -78,7 +79,12 @@ async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
 
 
 COMMANDS: tuple[CommandDefinition, ...] = (
-    CommandDefinition("help", "Show available commands.", help_command, aliases=("/help", "cmd")),
+    CommandDefinition(
+        "help",
+        "Show available commands.",
+        help_command,
+        aliases=("/help", "cmd", "commands", "/commands", "menu", "/menu"),
+    ),
     CommandDefinition("ping", "Verify the bot is reachable.", ping_command, aliases=("/ping",)),
     CommandDefinition("status", "Show service status.", status_command, aliases=("/status",)),
     CommandDefinition("lookup", "Start a guided lookup card.", lookup_command, aliases=("/lookup",)),
