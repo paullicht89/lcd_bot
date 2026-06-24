@@ -11,9 +11,11 @@ from lcd_teams_bot.cards.dob_inspections import (
     dob_inspections_search_card,
     dob_inspections_start_card,
 )
+from lcd_teams_bot.cards.ecb_violations import ecb_lookup_results_card, ecb_lookup_search_card
 from lcd_teams_bot.cards.lookup import lookup_prompt_card
 from lcd_teams_bot.config import settings
 from lcd_teams_bot.services.dob_safety import DobSafetyError, search_dob_safety
+from lcd_teams_bot.services.ecb_violations import EcbViolationsError, search_ecb_violations
 
 CARD_CONTENT_TYPE = "application/vnd.microsoft.card.adaptive"
 
@@ -66,6 +68,10 @@ async def dobinsp_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, dob_inspections_start_card())
 
 
+async def ecblookup_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, ecb_lookup_search_card())
+
+
 async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
     attachment = Attachment(content_type=CARD_CONTENT_TYPE, content=card)
     await turn_context.send_activity(Activity(type=ActivityTypes.message, attachments=[attachment]))
@@ -81,6 +87,12 @@ COMMANDS: tuple[CommandDefinition, ...] = (
         "Look up the most recent filed tests on DOB Now: Safety.",
         dobinsp_command,
         aliases=("/dobinsp",),
+    ),
+    CommandDefinition(
+        "ecblookup",
+        "Look up ECB violations on DOB.",
+        ecblookup_command,
+        aliases=("/ecblookup",),
     ),
 )
 
@@ -150,6 +162,26 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
         await send_adaptive_card(turn_context, dob_inspections_results_card(rows))
         return
 
+    if command == "ecblookup.cancel":
+        await turn_context.send_activity("ECB violation lookup canceled.")
+        return
+
+    if command == "ecblookup.submit":
+        if not _has_ecb_filter(value):
+            await turn_context.send_activity("Please provide at least one ECB lookup field.")
+            return
+
+        try:
+            rows = await search_ecb_violations(value)
+        except EcbViolationsError:
+            await turn_context.send_activity(
+                "Sorry, I could not retrieve ECB violation results right now."
+            )
+            return
+
+        await send_adaptive_card(turn_context, ecb_lookup_results_card(rows))
+        return
+
     await turn_context.send_activity("I received the card action, but no handler is registered yet.")
 
 
@@ -161,3 +193,15 @@ def _missing_dob_fields(search_type: str, value: dict) -> list[str]:
     else:
         required = (("bin", "BIN"),)
     return [label for key, label in required if not str(value.get(key, "")).strip()]
+
+
+def _has_ecb_filter(value: dict) -> bool:
+    fields = (
+        "ecb_no",
+        "bin",
+        "ecb_violation_status",
+        "hearing_status",
+        "severity",
+        "certification_status",
+    )
+    return any(str(value.get(field, "")).strip() for field in fields)
