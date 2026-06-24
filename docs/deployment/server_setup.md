@@ -110,5 +110,7 @@ https://lcdbot.lcd.nyc/api/messages
 - Rotate `MicrosoftAppPassword` periodically and update `.env`.
 - Add firewall rules so only ports 80/443 are public.
 - Keep `/api/messages` public over HTTPS because Bot Framework must call it.
+- App logs are written to stdout for systemd/journald. Use `LOG_LEVEL=INFO` for normal operation and temporarily raise to `DEBUG` only while troubleshooting.
+- Bot request logs intentionally avoid raw Teams message text and card payloads.
 - Store future conversation references under an ignored `data/` path if proactive messaging is added.
 - Local deploy helper defaults live in `scripts/deploy/README.md`.

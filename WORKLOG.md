@@ -8,6 +8,11 @@
 - Added Adaptive Card builder for lookup prompts.
 - Added Teams app manifest template and packaging script.
 - Added Microsoft/Teams and server deployment setup docs.
+- Added phase 1 operational logging and generic bot error handling without persistence.
+- Added local Teams package validation to troubleshoot Admin Center manifest upload errors.
+- Matched the LCD Bot Teams package icon layout to the working HRIS app package.
+- Aligned Teams manifest developer links with stable company pages used by the working HRIS package.
+- Documented the Teams install error that indicates an unregistered bot or missing Teams channel.
 
 ## Next Work
 

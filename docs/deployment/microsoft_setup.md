@@ -59,6 +59,22 @@ After adding application permissions, an admin must grant consent.
 
 Upload `dist/lcd-teams-bot.zip` to Teams for testing or publish it through the Teams admin center app catalog.
 
+If Teams says it cannot read `manifest.json`, run:
+
+```powershell
+python .\scripts\validate_teams_package.py .\dist\lcd-teams-bot.zip
+```
+
+Then confirm you are uploading `dist/lcd-teams-bot.zip` itself, not the unpacked `dist/lcd-teams-bot-package` folder or a zip that contains that folder as the root.
+
+If Teams says `Please make sure the bot is registered and teams' channel is enabled`, the app package was readable but Teams could not resolve the bot ID as a Teams-enabled Bot Framework bot. Check:
+
+1. `teams/lcd_bot/manifest.json` `bots[0].botId` exactly matches the Azure Bot Microsoft App ID / client ID.
+2. The Azure Bot resource exists. An Entra app registration by itself is not enough for Teams bot installation.
+3. The Azure Bot resource has the Microsoft Teams channel enabled under **Channels**.
+4. The Azure Bot messaging endpoint is set to `https://lcdbot.lcd.nyc/api/messages`.
+5. If the bot was just created or the Teams channel was just enabled, wait a few minutes and retry the upload/install.
+
 ## 5. Smoke Test
 
 In Teams:
