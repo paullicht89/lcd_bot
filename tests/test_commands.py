@@ -6,5 +6,5 @@ def test_normalize_command_strips_slash_and_args() -> None:
 
 
 def test_starter_commands_are_registered() -> None:
-    for name in ("help", "ping", "status", "lookup"):
+    for name in ("help", "ping", "status", "lookup", "dobinsp"):
         assert name in COMMAND_BY_NAME

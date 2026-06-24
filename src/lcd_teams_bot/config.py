@@ -24,6 +24,7 @@ class Settings:
     public_base_url: str = os.getenv("BOT_PUBLIC_BASE_URL", "https://lcdbot.lcd.nyc")
     environment: str = os.getenv("ENVIRONMENT", "local")
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
+    nys_app_token: str = os.getenv("NYS_APP_TOKEN", "")
 
 
 settings = Settings()
