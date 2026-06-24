@@ -10,19 +10,21 @@
   },
   "developer": {
     "name": "LCD Elevator IT",
-    "websiteUrl": "https://lcdbot.lcd.nyc",
-    "privacyUrl": "https://lcdbot.lcd.nyc/privacy",
-    "termsOfUseUrl": "https://lcdbot.lcd.nyc/terms"
+    "websiteUrl": "https://lcd.nyc",
+    "privacyUrl": "https://lcd.nyc/privacy",
+    "termsOfUseUrl": "https://lcd.nyc/terms"
   },
   "description": {
     "short": "LCD command bot for lookups and automations.",
     "full": "Run guided LCD Elevator lookup and automation commands from Microsoft Teams using Adaptive Cards."
   },
   "icons": {
-    "outline": "icons/outline.png",
-    "color": "icons/color.png"
+    "color": "color.png",
+    "outline": "outline.png"
   },
   "accentColor": "#0B5CAB",
+  "staticTabs": [],
+  "configurableTabs": [],
   "bots": [
     {
       "botId": "388419bf-621b-4892-ab77-7559b5651b83",
@@ -42,6 +44,8 @@
       ]
     }
   ],
+  "connectors": [],
+  "composeExtensions": [],
   "permissions": ["identity", "messageTeamMembers"],
   "validDomains": [
     "lcdbot.lcd.nyc",

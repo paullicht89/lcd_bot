@@ -52,6 +52,9 @@ The service exposes:
 - `GET /healthz` - health check.
 - `POST /api/messages` - Bot Framework messaging endpoint.
 
+Runtime logs are written to stdout for local shells and `systemd`/journald. Set `LOG_LEVEL`
+in `.env` to control verbosity. Request logs avoid raw Teams message text and card payloads.
+
 For local Teams testing, expose the service with a trusted tunnel and set the Azure Bot messaging endpoint to `https://<public-host>/api/messages`.
 
 ## Initial Commands
