@@ -14,6 +14,7 @@
 - Aligned Teams manifest developer links with stable company pages used by the working HRIS package.
 - Documented the Teams install error that indicates an unregistered bot or missing Teams channel.
 - Added `/dobinsp` guided DOB Now Safety inspection lookup cards and API integration.
+- Added `/ecblookup` guided ECB violation lookup with Adaptive Card search/results, DOB link/image buttons, and data.cityofnewyork.us API integration.
 
 ## Next Work
 
