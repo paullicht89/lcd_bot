@@ -20,3 +20,4 @@ All notable changes to this project will be documented here.
 
 - Teams manifest developer URLs now use stable company pages during app catalog upload.
 - Added stdout/journald-friendly logging and generic Bot Framework error handling.
+- Added `/dobinsp` guided DOB Now Safety lookup flow with Adaptive Card results.

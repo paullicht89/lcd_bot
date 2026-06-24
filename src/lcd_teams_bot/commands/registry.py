@@ -6,8 +6,14 @@ from typing import Awaitable, Callable
 from botbuilder.core import TurnContext
 from botbuilder.schema import Activity, ActivityTypes, Attachment
 
+from lcd_teams_bot.cards.dob_inspections import (
+    dob_inspections_results_card,
+    dob_inspections_search_card,
+    dob_inspections_start_card,
+)
 from lcd_teams_bot.cards.lookup import lookup_prompt_card
 from lcd_teams_bot.config import settings
+from lcd_teams_bot.services.dob_safety import DobSafetyError, search_dob_safety
 
 CARD_CONTENT_TYPE = "application/vnd.microsoft.card.adaptive"
 
@@ -56,11 +62,26 @@ async def lookup_command(turn_context: TurnContext, _: str) -> None:
     )
 
 
+async def dobinsp_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, dob_inspections_start_card())
+
+
+async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
+    attachment = Attachment(content_type=CARD_CONTENT_TYPE, content=card)
+    await turn_context.send_activity(Activity(type=ActivityTypes.message, attachments=[attachment]))
+
+
 COMMANDS: tuple[CommandDefinition, ...] = (
     CommandDefinition("help", "Show available commands.", help_command, aliases=("/help", "cmd")),
     CommandDefinition("ping", "Verify the bot is reachable.", ping_command, aliases=("/ping",)),
     CommandDefinition("status", "Show service status.", status_command, aliases=("/status",)),
     CommandDefinition("lookup", "Start a guided lookup card.", lookup_command, aliases=("/lookup",)),
+    CommandDefinition(
+        "dobinsp",
+        "Look up the most recent filed tests on DOB Now: Safety.",
+        dobinsp_command,
+        aliases=("/dobinsp",),
+    ),
 )
 
 COMMAND_BY_NAME = {
@@ -95,4 +116,48 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
         )
         return
 
+    if command == "dobinsp.cancel":
+        await turn_context.send_activity("DOB inspection lookup canceled.")
+        return
+
+    if command == "dobinsp.choose":
+        search_type = str(value.get("search_type", "")).strip().lower()
+        if search_type not in {"address", "device", "bin"}:
+            await turn_context.send_activity("Choose Address, Device Number, or BIN to continue.")
+            return
+        await send_adaptive_card(turn_context, dob_inspections_search_card(search_type))
+        return
+
+    if command == "dobinsp.submit":
+        search_type = str(value.get("search_type", "")).strip().lower()
+        if search_type not in {"address", "device", "bin"}:
+            await turn_context.send_activity("Choose Address, Device Number, or BIN to continue.")
+            return
+
+        missing = _missing_dob_fields(search_type, value)
+        if missing:
+            await turn_context.send_activity(f"Please provide: {', '.join(missing)}.")
+            return
+
+        try:
+            rows = await search_dob_safety(search_type, value)
+        except DobSafetyError:
+            await turn_context.send_activity(
+                "Sorry, I could not retrieve DOB Now Safety results right now."
+            )
+            return
+
+        await send_adaptive_card(turn_context, dob_inspections_results_card(rows))
+        return
+
     await turn_context.send_activity("I received the card action, but no handler is registered yet.")
+
+
+def _missing_dob_fields(search_type: str, value: dict) -> list[str]:
+    if search_type == "address":
+        required = (("house_number", "House Number"), ("street_name", "Street Name"))
+    elif search_type == "device":
+        required = (("device_number", "Device Number"),)
+    else:
+        required = (("bin", "BIN"),)
+    return [label for key, label in required if not str(value.get(key, "")).strip()]

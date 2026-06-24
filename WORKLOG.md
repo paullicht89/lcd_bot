@@ -13,11 +13,11 @@
 - Matched the LCD Bot Teams package icon layout to the working HRIS app package.
 - Aligned Teams manifest developer links with stable company pages used by the working HRIS package.
 - Documented the Teams install error that indicates an unregistered bot or missing Teams channel.
+- Added `/dobinsp` guided DOB Now Safety inspection lookup cards and API integration.
 
 ## Next Work
 
 - Create Azure Bot resource and single-tenant app identity.
 - Fill in `teams/lcd_bot/manifest.json` IDs and production host values.
 - Decide the final hostname, likely `lcdbot.lcd.nyc`.
-- Add first real lookup command using one of the documented APIs under `docs/sample_api/`.
 - Add persistent storage for conversation references if proactive messages are needed.
