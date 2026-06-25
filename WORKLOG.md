@@ -1,5 +1,12 @@
 # Worklog
 
+## 2026-06-25
+
+- Added `/nyslic` guided NYS Elevator License lookup for individual and business licenses.
+- Added Adaptive Card chooser, individual/business search forms, and result tables with license type label conversions.
+- Added NYS license service module for data.ny.gov individual and business POST query endpoints.
+- Added tests for `/nyslic` registration, card wiring, query construction, and result formatting.
+
 ## 2026-06-24
 
 - Created the initial standalone LCD Teams Bot scaffold.
