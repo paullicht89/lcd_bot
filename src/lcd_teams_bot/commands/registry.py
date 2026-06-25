@@ -14,9 +14,23 @@ from lcd_teams_bot.cards.dob_inspections import (
 from lcd_teams_bot.cards.ecb_violations import ecb_lookup_results_card, ecb_lookup_search_card
 from lcd_teams_bot.cards.help import help_card
 from lcd_teams_bot.cards.lookup import lookup_prompt_card
+from lcd_teams_bot.cards.nys_license import (
+    nys_business_license_results_card,
+    nys_business_license_search_card,
+    nys_individual_license_results_card,
+    nys_individual_license_search_card,
+    nys_license_start_card,
+)
 from lcd_teams_bot.config import settings
 from lcd_teams_bot.services.dob_safety import DobSafetyError, search_dob_safety
 from lcd_teams_bot.services.ecb_violations import EcbViolationsError, search_ecb_violations
+from lcd_teams_bot.services.nys_license import (
+    LICENSE_KIND_BUSINESS,
+    LICENSE_KIND_INDIVIDUAL,
+    NysLicenseError,
+    search_nys_business_licenses,
+    search_nys_individual_licenses,
+)
 
 CARD_CONTENT_TYPE = "application/vnd.microsoft.card.adaptive"
 
@@ -73,6 +87,10 @@ async def ecblookup_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, ecb_lookup_search_card())
 
 
+async def nyslic_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, nys_license_start_card())
+
+
 async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
     attachment = Attachment(content_type=CARD_CONTENT_TYPE, content=card)
     await turn_context.send_activity(Activity(type=ActivityTypes.message, attachments=[attachment]))
@@ -99,6 +117,12 @@ COMMANDS: tuple[CommandDefinition, ...] = (
         "Look up ECB violations on DOB.",
         ecblookup_command,
         aliases=("/ecblookup",),
+    ),
+    CommandDefinition(
+        "nyslic",
+        "Look up NYS Elevator Licensing (Individual & Business).",
+        nyslic_command,
+        aliases=("/nyslic",),
     ),
 )
 
@@ -188,6 +212,55 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
         await send_adaptive_card(turn_context, ecb_lookup_results_card(rows))
         return
 
+    if command == "nyslic.cancel":
+        await turn_context.send_activity("NYS license lookup canceled.")
+        return
+
+    if command == "nyslic.choose":
+        license_kind = str(value.get("license_kind", "")).strip().lower()
+        if license_kind == LICENSE_KIND_INDIVIDUAL:
+            await send_adaptive_card(turn_context, nys_individual_license_search_card())
+            return
+        if license_kind == LICENSE_KIND_BUSINESS:
+            await send_adaptive_card(turn_context, nys_business_license_search_card())
+            return
+        await turn_context.send_activity("Choose Individual or Business License to continue.")
+        return
+
+    if command == "nyslic.submit":
+        license_kind = str(value.get("license_kind", "")).strip().lower()
+
+        if license_kind == LICENSE_KIND_INDIVIDUAL:
+            if not str(value.get("last_name", "")).strip():
+                await turn_context.send_activity("Please provide a last name.")
+                return
+            try:
+                rows = await search_nys_individual_licenses(value)
+            except NysLicenseError:
+                await turn_context.send_activity(
+                    "Sorry, I could not retrieve NYS individual license results right now."
+                )
+                return
+            await send_adaptive_card(turn_context, nys_individual_license_results_card(rows))
+            return
+
+        if license_kind == LICENSE_KIND_BUSINESS:
+            if not _has_nys_business_filter(value):
+                await turn_context.send_activity("Please provide at least one business lookup field.")
+                return
+            try:
+                rows = await search_nys_business_licenses(value)
+            except NysLicenseError:
+                await turn_context.send_activity(
+                    "Sorry, I could not retrieve NYS business license results right now."
+                )
+                return
+            await send_adaptive_card(turn_context, nys_business_license_results_card(rows))
+            return
+
+        await turn_context.send_activity("Choose Individual or Business License to continue.")
+        return
+
     await turn_context.send_activity("I received the card action, but no handler is registered yet.")
 
 
@@ -210,4 +283,11 @@ def _has_ecb_filter(value: dict) -> bool:
         "severity",
         "certification_status",
     )
+    return any(str(value.get(field, "")).strip() for field in fields)
+
+
+def _has_nys_business_filter(value: dict) -> bool:
+    if str(value.get("license_type", "")).strip().upper() not in {"", "ALL"}:
+        return True
+    fields = ("business_name", "city", "zip_code", "license_number")
     return any(str(value.get(field, "")).strip() for field in fields)

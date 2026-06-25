@@ -7,7 +7,7 @@ def test_normalize_command_strips_slash_and_args() -> None:
 
 
 def test_starter_commands_are_registered() -> None:
-    for name in ("help", "ping", "status", "lookup", "dobinsp", "ecblookup"):
+    for name in ("help", "ping", "status", "lookup", "dobinsp", "ecblookup", "nyslic"):
         assert name in COMMAND_BY_NAME
 
 
@@ -28,5 +28,5 @@ def test_help_card_lists_registered_commands() -> None:
         for item in card["body"]
         if item.get("type") == "Container"
     ]
-    for name in ("help", "ping", "status", "lookup", "dobinsp", "ecblookup"):
+    for name in ("help", "ping", "status", "lookup", "dobinsp", "ecblookup", "nyslic"):
         assert any(f"`{name}`" in text for text in text_blocks)
