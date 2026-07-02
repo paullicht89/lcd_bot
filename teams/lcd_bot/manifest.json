@@ -38,7 +38,8 @@
             {"title": "help", "description": "Show available commands."},
             {"title": "ping", "description": "Verify the bot is reachable."},
             {"title": "status", "description": "Show bot service status."},
-            {"title": "lookup", "description": "Start a guided lookup prompt."}
+            {"title": "lookup", "description": "Start a guided lookup prompt."},
+            {"title": "pwgen", "description": "Generate a random temporary password."}
           ]
         }
       ]

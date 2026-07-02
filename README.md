@@ -63,6 +63,7 @@ For local Teams testing, expose the service with a trusted tunnel and set the Az
 - `ping` or `/ping` - verify the bot is reachable.
 - `status` or `/status` - show current service/environment status.
 - `lookup` or `/lookup` - starter Adaptive Card flow for future data lookups.
+- `pwgen` or `/pwgen` - generate a random temporary password.
 
 ## Teams App Package
 

@@ -1,5 +1,11 @@
 # Worklog
 
+## 2026-07-02
+
+- Added `/pwgen` random temporary password command using a production-local generator based on the reference password script format.
+- Added Adaptive Card output for generated passwords with `Generate Another Password` and `Done` actions.
+- Registered `/pwgen` in command/help flows, Teams manifest command list, README, changelog, and tests.
+
 ## 2026-06-25
 
 - Added `/nyslic` guided NYS Elevator License lookup for individual and business licenses.
