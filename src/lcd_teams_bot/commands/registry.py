@@ -21,7 +21,9 @@ from lcd_teams_bot.cards.nys_license import (
     nys_individual_license_search_card,
     nys_license_start_card,
 )
+from lcd_teams_bot.cards.password_generator import password_generated_card
 from lcd_teams_bot.config import settings
+from lcd_teams_bot.services.password_generator import generate_password
 from lcd_teams_bot.services.dob_safety import DobSafetyError, search_dob_safety
 from lcd_teams_bot.services.ecb_violations import EcbViolationsError, search_ecb_violations
 from lcd_teams_bot.services.nys_license import (
@@ -91,6 +93,10 @@ async def nyslic_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, nys_license_start_card())
 
 
+async def pwgen_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, password_generated_card(generate_password()))
+
+
 async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
     attachment = Attachment(content_type=CARD_CONTENT_TYPE, content=card)
     await turn_context.send_activity(Activity(type=ActivityTypes.message, attachments=[attachment]))
@@ -123,6 +129,12 @@ COMMANDS: tuple[CommandDefinition, ...] = (
         "Look up NYS Elevator Licensing (Individual & Business).",
         nyslic_command,
         aliases=("/nyslic",),
+    ),
+    CommandDefinition(
+        "pwgen",
+        "Generate a random temporary password.",
+        pwgen_command,
+        aliases=("/pwgen",),
     ),
 )
 
@@ -259,6 +271,14 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
             return
 
         await turn_context.send_activity("Choose Individual or Business License to continue.")
+        return
+
+    if command == "pwgen.generate":
+        await send_adaptive_card(turn_context, password_generated_card(generate_password()))
+        return
+
+    if command == "pwgen.done":
+        await turn_context.send_activity("Password generation done.")
         return
 
     await turn_context.send_activity("I received the card action, but no handler is registered yet.")

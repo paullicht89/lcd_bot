@@ -6,6 +6,7 @@ All notable changes to this project will be documented here.
 
 ### Added
 
+- Added `/pwgen` random temporary password generation with Adaptive Card actions.
 - Added `/nyslic` NYS Elevator License lookup for individual and business licenses with Adaptive Card search and results.
 
 ## [0.1.0] - 2026-06-24
