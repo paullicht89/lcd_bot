@@ -161,6 +161,10 @@ async def dispatch_text_command(turn_context: TurnContext, text: str | None) -> 
 
 async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
     command = str(value.get("command", "")).strip().lower()
+    if command == "command.run":
+        await dispatch_text_command(turn_context, str(value.get("target", "")))
+        return
+
     if command == "lookup.submit":
         source = value.get("source", "")
         query = value.get("query", "")

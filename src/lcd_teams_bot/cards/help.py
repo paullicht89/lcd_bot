@@ -38,6 +38,20 @@ def help_card(commands: Iterable[tuple[str, str, tuple[str, ...]]]) -> dict[str,
                         "wrap": True,
                         "spacing": "None",
                     },
+                    {
+                        "type": "ActionSet",
+                        "spacing": "Small",
+                        "actions": [
+                            {
+                                "type": "Action.Submit",
+                                "title": f"Run {name}",
+                                "data": {
+                                    "command": "command.run",
+                                    "target": name,
+                                },
+                            }
+                        ],
+                    },
                 ],
             }
         )
