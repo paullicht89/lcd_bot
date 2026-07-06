@@ -6,6 +6,7 @@
 - Added Adaptive Card output for generated passwords with `Generate Another Password` and `Done` actions.
 - Registered `/pwgen` in command/help flows, Teams manifest command list, README, changelog, and tests.
 - Updated `/pwgen` to use the revised reference word list and `Word-Word-Word-##Symbol` format.
+- Added run buttons to the `help` command catalog so users can launch commands from the Adaptive Card.
 
 ## 2026-06-25
 
