@@ -63,7 +63,9 @@ For local Teams testing, expose the service with a trusted tunnel and set the Az
 - `ping` or `/ping` - verify the bot is reachable.
 - `status` or `/status` - show current service/environment status.
 - `lookup` or `/lookup` - starter Adaptive Card flow for future data lookups.
+- `eei` or `/eei` - look up Connecteam, LCD, and HRIS employee ID numbers.
 - `pwgen` or `/pwgen` - generate a random temporary password.
+- `maptiveup` or `/maptiveup` - select and force an update of Maptive or Dataverse data from Fieldboss Automations.
 
 ## Teams App Package
 

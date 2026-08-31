@@ -13,7 +13,9 @@ from lcd_teams_bot.cards.dob_inspections import (
 )
 from lcd_teams_bot.cards.ecb_violations import ecb_lookup_results_card, ecb_lookup_search_card
 from lcd_teams_bot.cards.help import help_card
+from lcd_teams_bot.cards.employee_id import employee_choices_card, employee_id_result_card, employee_id_search_card
 from lcd_teams_bot.cards.lookup import lookup_prompt_card
+from lcd_teams_bot.cards.maptive import maptive_sync_confirmation_card
 from lcd_teams_bot.cards.nys_license import (
     nys_business_license_results_card,
     nys_business_license_search_card,
@@ -24,6 +26,7 @@ from lcd_teams_bot.cards.nys_license import (
 from lcd_teams_bot.cards.password_generator import password_generated_card
 from lcd_teams_bot.config import settings
 from lcd_teams_bot.services.password_generator import generate_password
+from lcd_teams_bot.services.connecteam import ConnecteamError, search_connecteam_users
 from lcd_teams_bot.services.dob_safety import DobSafetyError, search_dob_safety
 from lcd_teams_bot.services.ecb_violations import EcbViolationsError, search_ecb_violations
 from lcd_teams_bot.services.nys_license import (
@@ -33,6 +36,7 @@ from lcd_teams_bot.services.nys_license import (
     search_nys_business_licenses,
     search_nys_individual_licenses,
 )
+from lcd_teams_bot.services.maptive import MaptiveSyncError, force_dataverse_sync, force_maptive_sync
 
 CARD_CONTENT_TYPE = "application/vnd.microsoft.card.adaptive"
 
@@ -97,6 +101,14 @@ async def pwgen_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, password_generated_card(generate_password()))
 
 
+async def eei_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, employee_id_search_card())
+
+
+async def maptiveup_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, maptive_sync_confirmation_card())
+
+
 async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
     attachment = Attachment(content_type=CARD_CONTENT_TYPE, content=card)
     await turn_context.send_activity(Activity(type=ActivityTypes.message, attachments=[attachment]))
@@ -135,6 +147,18 @@ COMMANDS: tuple[CommandDefinition, ...] = (
         "Generate a random temporary password.",
         pwgen_command,
         aliases=("/pwgen",),
+    ),
+    CommandDefinition(
+        "eei",
+        "Look up employee Connecteam, LCD, and HRIS ID numbers.",
+        eei_command,
+        aliases=("/eei",),
+    ),
+    CommandDefinition(
+        "maptiveup",
+        "Force an update of Maptive or Dataverse data from Fieldboss Automations.",
+        maptiveup_command,
+        aliases=("/maptiveup",),
     ),
 )
 
@@ -283,6 +307,62 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
 
     if command == "pwgen.done":
         await turn_context.send_activity("Password generation done.")
+        return
+
+    if command == "eei.cancel":
+        await turn_context.send_activity("Employee ID lookup canceled.")
+        return
+
+    if command == "eei.submit":
+        if not any(str(value.get(key, "")).strip() for key in ("first_name", "last_name", "phone_number")):
+            await turn_context.send_activity("Please provide a first name, last name, or phone number.")
+            return
+        try:
+            users = await search_connecteam_users(value)
+        except ValueError:
+            await turn_context.send_activity("Enter a 10-digit phone number without symbols or spaces.")
+            return
+        except ConnecteamError:
+            await turn_context.send_activity("Sorry, I could not retrieve Connecteam users right now.")
+            return
+        if not users:
+            await turn_context.send_activity("No users matching the name or phone number have been found.")
+        elif len(users) == 1:
+            await send_adaptive_card(turn_context, employee_id_result_card(users[0]))
+        else:
+            await send_adaptive_card(turn_context, employee_choices_card(users))
+        return
+
+    if command == "eei.select":
+        user = value.get("user")
+        if not isinstance(user, dict):
+            await turn_context.send_activity("That employee selection is invalid. Please run `/eei` again.")
+            return
+        await send_adaptive_card(turn_context, employee_id_result_card(user))
+        return
+
+    if command == "maptiveup.cancel":
+        await turn_context.send_activity("Data force update canceled.")
+        return
+
+    if command == "maptiveup.submit":
+        update_target = str(value.get("update_target", "")).strip().lower()
+        if update_target not in {"maptive", "dataverse"}:
+            await turn_context.send_activity("Select Maptive or Dataverse before submitting.")
+            return
+
+        try:
+            if update_target == "maptive":
+                await force_maptive_sync(settings.maptive_sync_secret)
+            else:
+                await force_dataverse_sync(settings.dataverse_sync_secret)
+        except MaptiveSyncError as exc:
+            await turn_context.send_activity(
+                f"{update_target.title()} force update failed: {exc}. "
+                "Please forward this error to IT."
+            )
+            return
+        await turn_context.send_activity(f"{update_target.title()} force update: Successful.")
         return
 
     await turn_context.send_activity("I received the card action, but no handler is registered yet.")

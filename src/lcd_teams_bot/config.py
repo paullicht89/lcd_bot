@@ -25,6 +25,9 @@ class Settings:
     environment: str = os.getenv("ENVIRONMENT", "local")
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
     nys_app_token: str = os.getenv("NYS_APP_TOKEN", "")
+    connecteam_api_key: str = os.getenv("CONNECTEAM_API_KEY", "")
+    maptive_sync_secret: str = os.getenv("MAPTIVE_SYNC_SECRET", "")
+    dataverse_sync_secret: str = os.getenv("DATAVERSE_SYNC_SECRET", "")
 
 
 settings = Settings()

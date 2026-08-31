@@ -1,5 +1,20 @@
 # Worklog
 
+## 2026-08-31
+
+- Added `/maptiveup` with an explicit confirmation card and authenticated Fieldboss Automations webhook call.
+- Added user-facing success and actionable error responses without exposing the Maptive sync secret.
+- Registered `/maptiveup` in help, the Teams manifest, README, changelog, environment template, and tests.
+- Expanded the `help` Adaptive Card to the full Teams message width for easier reading.
+- Expanded `/maptiveup` with a Maptive/Dataverse selection card, Submit/Cancel actions, and the authenticated Dataverse `ALL` sync webhook.
+- Updated the Maptive sync webhook to send the same `{"scope": "ALL"}` JSON payload.
+
+## 2026-08-03
+
+- Added `/eei` employee ID lookup with Adaptive Card search, disambiguation, and result views.
+- Added Connecteam exact name/phone lookup plus paginated fuzzy name fallback.
+- Registered `/eei` in help, Teams manifest, README, changelog, and tests.
+
 ## 2026-07-02
 
 - Added `/pwgen` random temporary password command using a production-local generator based on the reference password script format.
