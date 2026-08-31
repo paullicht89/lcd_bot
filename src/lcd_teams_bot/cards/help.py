@@ -60,6 +60,7 @@ def help_card(commands: Iterable[tuple[str, str, tuple[str, ...]]]) -> dict[str,
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "type": "AdaptiveCard",
         "version": "1.5",
+        "msteams": {"width": "Full"},
         "body": body,
     }
 
