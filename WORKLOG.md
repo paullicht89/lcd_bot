@@ -1,5 +1,12 @@
 # Worklog
 
+## 2026-09-24
+
+- Added `/splashtoppc` search, submit/cancel, device results, and search-again Adaptive Cards.
+- Added a read-only Splashtop service with environment-based credentials/team ID, query parameters for either or both inputs, input validation, timeouts, and sanitized failures.
+- Registered the command in help and the Teams manifest; documented environment setup and both-field behavior.
+- Verified with the project virtual environment: 65 pytest tests passed, Teams package validation passed, and diff whitespace checks passed. Tests cover request parameters, validation, transport/API errors, device rendering, batching, cancellation, and retry. No live API credentials used.
+
 ## 2026-08-31
 
 - Added `/maptiveup` with an explicit confirmation card and authenticated Fieldboss Automations webhook call.

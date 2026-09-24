@@ -67,6 +67,18 @@ For local Teams testing, expose the service with a trusted tunnel and set the Az
 - `pwgen` or `/pwgen` - generate a random temporary password.
 - `maptiveup` or `/maptiveup` - select and force an update of Maptive or Dataverse data from Fieldboss Automations.
 
+## Splashtop Device Lookup
+
+Run `/splashtoppc` (also available in help) to search by device ID, host name, or both.
+At least one field is required; when both are entered, both `ids` and `host_name`
+are sent to Splashtop. Results show each device's basic details, online status,
+last-online timestamp as returned by Splashtop, and logged-in user. `SEARCH AGAIN`
+opens a fresh form; `CANCEL` ends the lookup without an API request.
+
+Set `SPLASHTOP_API_TOKEN` to the bearer token and `SPLASHTOP_TEAM_ID` to the
+Splashtop team number in the local/server `.env`, then restart the bot. Keep these
+values out of version control. The integration uses read-only GET requests.
+
 ## Teams App Package
 
 1. Register the bot in Azure Bot Service and note the app/client ID.
