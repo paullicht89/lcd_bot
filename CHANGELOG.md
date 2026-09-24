@@ -6,6 +6,8 @@ All notable changes to this project will be documented here.
 
 ### Added
 
+- Added `/splashtoppc` with Adaptive Card device search, results, cancellation, and search again; configure `SPLASHTOP_API_TOKEN` and `SPLASHTOP_TEAM_ID` in the environment.
+
 - Added `/maptiveup` to force a confirmed Maptive data update through Fieldboss Automations.
 - Added Dataverse as an `/maptiveup` update target with an `ALL` scope sync payload.
 - Added `/eei` Connecteam employee ID lookup with name/phone search and user selection cards.

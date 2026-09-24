@@ -21,6 +21,7 @@ def test_starter_commands_are_registered() -> None:
         "pwgen",
         "eei",
         "maptiveup",
+        "splashtoppc",
     ):
         assert name in COMMAND_BY_NAME
 
@@ -53,6 +54,7 @@ def test_help_card_lists_registered_commands() -> None:
         "pwgen",
         "eei",
         "maptiveup",
+        "splashtoppc",
     ):
         assert any(f"`{name}`" in text for text in text_blocks)
 

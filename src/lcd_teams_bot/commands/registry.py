@@ -24,6 +24,8 @@ from lcd_teams_bot.cards.nys_license import (
     nys_license_start_card,
 )
 from lcd_teams_bot.cards.password_generator import password_generated_card
+from lcd_teams_bot.cards.splashtop import splashtop_results_card, splashtop_search_card
+from lcd_teams_bot.services.splashtop import SplashtopError, search_splashtop_computers
 from lcd_teams_bot.config import settings
 from lcd_teams_bot.services.password_generator import generate_password
 from lcd_teams_bot.services.connecteam import ConnecteamError, search_connecteam_users
@@ -101,6 +103,10 @@ async def pwgen_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, password_generated_card(generate_password()))
 
 
+async def splashtoppc_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, splashtop_search_card())
+
+
 async def eei_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, employee_id_search_card())
 
@@ -115,6 +121,10 @@ async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
 
 
 COMMANDS: tuple[CommandDefinition, ...] = (
+    CommandDefinition(
+        "splashtoppc", "Get Splashtop basic device info by ID or host name.",
+        splashtoppc_command, aliases=("/splashtoppc",),
+    ),
     CommandDefinition(
         "help",
         "Show available commands.",
@@ -196,6 +206,26 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
             f"Lookup request received for source `{source}` with query `{query}`. "
             "The integration handler is the next piece to wire in."
         )
+        return
+
+    if command == "splashtoppc.cancel":
+        await turn_context.send_activity("Splashtop device lookup canceled.")
+        return
+
+    if command == "splashtoppc.submit":
+        try:
+            rows = await search_splashtop_computers(value)
+        except ValueError as exc:
+            await send_adaptive_card(turn_context, splashtop_search_card(str(exc)))
+            return
+        except SplashtopError:
+            await send_adaptive_card(turn_context, splashtop_search_card(
+                "Sorry, I could not retrieve Splashtop devices right now. Please try again or contact IT."
+            ))
+            return
+        # Keep each Teams card small while displaying every returned device.
+        for start in range(0, max(len(rows), 1), 5):
+            await send_adaptive_card(turn_context, splashtop_results_card(rows[start:start + 5]))
         return
 
     if command == "dobinsp.cancel":

@@ -28,6 +28,8 @@ class Settings:
     connecteam_api_key: str = os.getenv("CONNECTEAM_API_KEY", "")
     maptive_sync_secret: str = os.getenv("MAPTIVE_SYNC_SECRET", "")
     dataverse_sync_secret: str = os.getenv("DATAVERSE_SYNC_SECRET", "")
+    splashtop_api_token: str = os.getenv("SPLASHTOP_API_TOKEN", "")
+    splashtop_team_id: str = os.getenv("SPLASHTOP_TEAM_ID", "")
 
 
 settings = Settings()
