@@ -99,6 +99,9 @@ Cancel makes no lookup request.
 Set `DATAVERSE_URL` to the environment origin (defaults to
 `https://lcdelevator.crm.dynamics.com`). Set `DATAVERSE_TENANT_ID`,
 `DATAVERSE_CLIENT_ID`, and `DATAVERSE_CLIENT_SECRET` in the local/server `.env`.
+Existing `DV_BASE_URL`, `DV_TENANT_ID`, `DV_CLIENT_ID`, and `DV_CLIENT_SECRET`
+are also supported. Nonblank `DATAVERSE_*` values take precedence over their
+`DV_*` equivalents; blank values fall back to the aliases.
 The Entra app needs a Dataverse application user with a security role granting
 read access to the User (`systemuser`) table. Each search obtains a fresh token
 using the environment's `/.default` scope. See Microsoft's
@@ -109,6 +112,16 @@ it takes precedence and must be replaced when it expires. Leave it blank when
 using application credentials. Restart the bot after changing environment values.
 `DATAVERSE_SYNC_SECRET` is for the separate sync webhook, not Dataverse API access.
 Keep credentials out of version control.
+
+For `/fbusers` failures, check `journalctl -u lcd_bot -n 100 --no-pager`.
+Dataverse logs identify missing setting names, authentication mode, failure reason,
+HTTP status, and transport stage/type without logging credentials or search inputs.
+`missing_credentials` means the bot has neither a bearer token nor complete
+application credentials; configure the server environment and restart `lcd_bot`.
+`token_request` means the token endpoint rejected sign-in; `unauthorized` means
+the API rejected the token; `forbidden` means the API denied access. The Teams
+error card includes recovery guidance. HTTP 201 on `/api/messages` only confirms
+the bot handled the incoming activity, not that the Dataverse request succeeded.
 
 ## Teams App Package
 

@@ -2,6 +2,12 @@
 
 ## 2026-11-06
 
+- Identified the credential-name mismatch: existing environment uses DV_* names while the bot only read DATAVERSE_* names. Added aliases for base URL, tenant, client ID, and client secret; nonblank DATAVERSE_* settings take precedence. No credential values copied or logged.
+
+- Investigated silent `/fbusers` errors: DataverseError was handled without logging. Local Dataverse credential settings are all unset; server configuration has not been inspected.
+- Added safe failure reasons, HTTP status, authentication mode, transport stage/type, missing setting names, and successful lookup counts to logs; added actionable Teams error cards. No tokens, names, response bodies, or raw exception messages are logged.
+- Verified diagnostics and redaction with regression tests: full suite 110 passed (existing local pytest cache warning); diff whitespace check passed. Server deployment and live Dataverse verification remain outstanding.
+
 - Added `/fbusers` name search, a three-column results table, cancellation, and search again.
 - Added read-only Dataverse lookup with escaped OData filters, the fixed company domain filter, pagination, timeouts, and bearer-token or client-credentials authentication.
 - Preserved existing uncommitted work. Full pytest suite: 102 passed (one local pytest cache warning). Tests cover filters, input validation, authentication, pagination, errors, table output, batching, cancellation, and retry. No live Dataverse request was made.

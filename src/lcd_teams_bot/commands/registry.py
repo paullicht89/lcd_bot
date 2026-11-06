@@ -213,10 +213,8 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
         except ValueError as exc:
             await send_adaptive_card(turn_context, fbusers_search_card(str(exc)))
             return
-        except DataverseError:
-            await send_adaptive_card(turn_context, fbusers_search_card(
-                "Could not retrieve Fieldboss users. Please try again or ask IT to check Dataverse access."
-            ))
+        except DataverseError as exc:
+            await send_adaptive_card(turn_context, fbusers_search_card(exc.user_message))
             return
         for start in range(0, max(len(rows), 1), 10):
             await send_adaptive_card(turn_context, fbusers_results_card(rows[start:start + 10]))
