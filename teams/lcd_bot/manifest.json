@@ -40,6 +40,7 @@
             {"title": "status", "description": "Show bot service status."},
             {"title": "lookup", "description": "Start a guided lookup prompt."},
             {"title": "eei", "description": "Look up employee ID numbers."},
+            {"title": "fbusers", "description": "Find Fieldboss users by first or last name."},
             {"title": "pwgen", "description": "Generate a random temporary password."},
             {"title": "splashtoppc", "description": "Get Splashtop basic device info by ID or host name."},
             {"title": "maptiveup", "description": "Force an update of Maptive or Dataverse data."}

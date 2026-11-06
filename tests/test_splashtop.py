@@ -53,6 +53,7 @@ def test_invalid_input_never_opens_session(values):
     (401, {}, SplashtopError), (429, {}, SplashtopError), (500, {}, SplashtopError),
     (302, {}, SplashtopError), (200, {"result": 40400, "data": []}, SplashtopError),
     (200, [], SplashtopError), (200, {"result": 20200}, SplashtopError),
+    (200, {"result": 41406, "data": {"error": "token_auth_fail"}}, SplashtopError),
     (200, {"result": 20200, "data": [None]}, SplashtopError),
 ])
 def test_api_response_validation(status, payload, error):
@@ -67,8 +68,10 @@ def test_api_response_validation(status, payload, error):
         splashtop_team_id="456", splashtop_api_token="test-token"
     )), patch(f"{SERVICE}.aiohttp.ClientSession", return_value=session):
         if error:
-            with pytest.raises(error):
+            with pytest.raises(error) as raised:
                 asyncio.run(search_splashtop_computers({"id": "123"}))
+            if status == 401 or (isinstance(payload, dict) and payload.get("result") == 41406):
+                assert "rejected the API token" in raised.value.user_message
         else:
             assert asyncio.run(search_splashtop_computers({"id": "123"})) == []
 
@@ -144,3 +147,14 @@ def test_submit_errors_are_retryable_and_sanitized(error):
     card = context.send_activity.call_args.args[0].attachments[0].content
     assert "sensitive" not in str(card)
     assert card["actions"][0]["data"]["command"] == "splashtoppc.submit"
+
+
+def test_authentication_error_card_gives_recovery_instructions():
+    context = SimpleNamespace(send_activity=AsyncMock())
+    error = SplashtopError("private upstream details", authentication_failed=True)
+    with patch(f"{REGISTRY}.search_splashtop_computers", new_callable=AsyncMock, side_effect=error):
+        asyncio.run(dispatch_card_action(context, {"command": "splashtoppc.submit", "id": "123"}))
+    card = context.send_activity.call_args.args[0].attachments[0].content
+    assert "SPLASHTOP_API_TOKEN" in str(card)
+    assert "restart the bot" in str(card)
+    assert "private upstream details" not in str(card)

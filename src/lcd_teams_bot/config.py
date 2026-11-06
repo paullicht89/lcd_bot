@@ -28,6 +28,11 @@ class Settings:
     connecteam_api_key: str = os.getenv("CONNECTEAM_API_KEY", "")
     maptive_sync_secret: str = os.getenv("MAPTIVE_SYNC_SECRET", "")
     dataverse_sync_secret: str = os.getenv("DATAVERSE_SYNC_SECRET", "")
+    dataverse_url: str = os.getenv("DATAVERSE_URL", "https://lcdelevator.crm.dynamics.com")
+    dataverse_access_token: str = os.getenv("DATAVERSE_ACCESS_TOKEN", "")
+    dataverse_tenant_id: str = os.getenv("DATAVERSE_TENANT_ID", "")
+    dataverse_client_id: str = os.getenv("DATAVERSE_CLIENT_ID", "")
+    dataverse_client_secret: str = os.getenv("DATAVERSE_CLIENT_SECRET", "")
     splashtop_api_token: str = os.getenv("SPLASHTOP_API_TOKEN", "")
     splashtop_team_id: str = os.getenv("SPLASHTOP_TEAM_ID", "")
 

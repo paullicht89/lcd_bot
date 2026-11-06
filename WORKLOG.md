@@ -1,6 +1,15 @@
 # Worklog
 
+## 2026-11-06
+
+- Added `/fbusers` name search, a three-column results table, cancellation, and search again.
+- Added read-only Dataverse lookup with escaped OData filters, the fixed company domain filter, pagination, timeouts, and bearer-token or client-credentials authentication.
+- Preserved existing uncommitted work. Full pytest suite: 102 passed (one local pytest cache warning). Tests cover filters, input validation, authentication, pagination, errors, table output, batching, cancellation, and retry. No live Dataverse request was made.
+
 ## 2026-09-24
+
+- Diagnosed a live `/splashtoppc` failure: HTTP 200 with result 41406 and `token_auth_fail`; configured token was rejected. No credentials or device records were printed or saved.
+- Added actionable authentication-error cards and sanitized status/result logging. Token replacement and bot restart are required to restore live lookups.
 
 - Added `/splashtoppc` search, submit/cancel, device results, and search-again Adaptive Cards.
 - Added a read-only Splashtop service with environment-based credentials/team ID, query parameters for either or both inputs, input validation, timeouts, and sanitized failures.

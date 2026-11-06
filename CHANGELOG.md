@@ -6,6 +6,8 @@ All notable changes to this project will be documented here.
 
 ### Added
 
+- Added `/fbusers` to search Dataverse users by first/last name with the LCD email domain filter and display name, M365 email, and Fieldboss user GUID in a table.
+
 - Added `/splashtoppc` with Adaptive Card device search, results, cancellation, and search again; configure `SPLASHTOP_API_TOKEN` and `SPLASHTOP_TEAM_ID` in the environment.
 
 - Added `/maptiveup` to force a confirmed Maptive data update through Fieldboss Automations.
@@ -16,6 +18,8 @@ All notable changes to this project will be documented here.
 - Added run buttons to the `help` Adaptive Card command catalog.
 
 ### Changed
+
+- Splashtop authentication failures now explain that IT must replace the API token and restart the bot; diagnostic logs include safe HTTP/result codes.
 
 - Expanded the `help` Adaptive Card to the full Teams message width.
 - Updated the Maptive force-update request to send an `ALL` scope payload.

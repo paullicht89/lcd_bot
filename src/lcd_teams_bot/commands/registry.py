@@ -13,6 +13,8 @@ from lcd_teams_bot.cards.dob_inspections import (
 )
 from lcd_teams_bot.cards.ecb_violations import ecb_lookup_results_card, ecb_lookup_search_card
 from lcd_teams_bot.cards.help import help_card
+from lcd_teams_bot.cards.fbusers import fbusers_results_card, fbusers_search_card
+from lcd_teams_bot.services.dataverse import DataverseError, search_dataverse_users
 from lcd_teams_bot.cards.employee_id import employee_choices_card, employee_id_result_card, employee_id_search_card
 from lcd_teams_bot.cards.lookup import lookup_prompt_card
 from lcd_teams_bot.cards.maptive import maptive_sync_confirmation_card
@@ -111,6 +113,10 @@ async def eei_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, employee_id_search_card())
 
 
+async def fbusers_command(turn_context: TurnContext, _: str) -> None:
+    await send_adaptive_card(turn_context, fbusers_search_card())
+
+
 async def maptiveup_command(turn_context: TurnContext, _: str) -> None:
     await send_adaptive_card(turn_context, maptive_sync_confirmation_card())
 
@@ -121,6 +127,8 @@ async def send_adaptive_card(turn_context: TurnContext, card: dict) -> None:
 
 
 COMMANDS: tuple[CommandDefinition, ...] = (
+    CommandDefinition("fbusers", "Find Fieldboss users by first or last name.",
+                      fbusers_command, aliases=("/fbusers",)),
     CommandDefinition(
         "splashtoppc", "Get Splashtop basic device info by ID or host name.",
         splashtoppc_command, aliases=("/splashtoppc",),
@@ -195,6 +203,25 @@ async def dispatch_text_command(turn_context: TurnContext, text: str | None) -> 
 
 async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
     command = str(value.get("command", "")).strip().lower()
+    if command == "fbusers.cancel":
+        await turn_context.send_activity("Fieldboss user lookup canceled.")
+        return
+
+    if command == "fbusers.submit":
+        try:
+            rows = await search_dataverse_users(value)
+        except ValueError as exc:
+            await send_adaptive_card(turn_context, fbusers_search_card(str(exc)))
+            return
+        except DataverseError:
+            await send_adaptive_card(turn_context, fbusers_search_card(
+                "Could not retrieve Fieldboss users. Please try again or ask IT to check Dataverse access."
+            ))
+            return
+        for start in range(0, max(len(rows), 1), 10):
+            await send_adaptive_card(turn_context, fbusers_results_card(rows[start:start + 10]))
+        return
+
     if command == "command.run":
         await dispatch_text_command(turn_context, str(value.get("target", "")))
         return
@@ -218,10 +245,8 @@ async def dispatch_card_action(turn_context: TurnContext, value: dict) -> None:
         except ValueError as exc:
             await send_adaptive_card(turn_context, splashtop_search_card(str(exc)))
             return
-        except SplashtopError:
-            await send_adaptive_card(turn_context, splashtop_search_card(
-                "Sorry, I could not retrieve Splashtop devices right now. Please try again or contact IT."
-            ))
+        except SplashtopError as exc:
+            await send_adaptive_card(turn_context, splashtop_search_card(exc.user_message))
             return
         # Keep each Teams card small while displaying every returned device.
         for start in range(0, max(len(rows), 1), 5):
