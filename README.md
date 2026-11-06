@@ -79,6 +79,37 @@ Set `SPLASHTOP_API_TOKEN` to the bearer token and `SPLASHTOP_TEAM_ID` to the
 Splashtop team number in the local/server `.env`, then restart the bot. Keep these
 values out of version control. The integration uses read-only GET requests.
 
+If Splashtop rejects the token (result `41406`, `token_auth_fail`), create a valid
+Web API token in Splashtop Account Settings > Web API Tokens > Manage, with
+computer lookup access, and replace `SPLASHTOP_API_TOKEN`. Restart the bot after
+changing `.env`; settings are loaded at process startup. See the
+[Splashtop authentication guide](https://support-splashtopbusiness.splashtop.com/hc/en-us/articles/16772899906459-Splashtop-Open-APIs).
+
+## Fieldboss User Lookup
+
+Run `/fbusers` to search by First Name, Last Name, or both using partial matches.
+At least one name is required. Both `contains(firstname,...)` and
+`contains(lastname,...)` are sent, with an empty string for an omitted name;
+every query includes `contains(domainname,'@lcdelevator.')`.
+Results show User's Name (`fullname`), M365 Email (`domainname`), and FB User GUID
+(`systemuserid`) in batches of 10 per card, including subsequent API pages.
+Empty results prompt another search. Search Again opens a fresh form;
+Cancel makes no lookup request.
+
+Set `DATAVERSE_URL` to the environment origin (defaults to
+`https://lcdelevator.crm.dynamics.com`). Set `DATAVERSE_TENANT_ID`,
+`DATAVERSE_CLIENT_ID`, and `DATAVERSE_CLIENT_SECRET` in the local/server `.env`.
+The Entra app needs a Dataverse application user with a security role granting
+read access to the User (`systemuser`) table. Each search obtains a fresh token
+using the environment's `/.default` scope. See Microsoft's
+[Dataverse OAuth setup](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/authenticate-oauth).
+
+For temporary testing, set `DATAVERSE_ACCESS_TOKEN` to a bearer token instead;
+it takes precedence and must be replaced when it expires. Leave it blank when
+using application credentials. Restart the bot after changing environment values.
+`DATAVERSE_SYNC_SECRET` is for the separate sync webhook, not Dataverse API access.
+Keep credentials out of version control.
+
 ## Teams App Package
 
 1. Register the bot in Azure Bot Service and note the app/client ID.
