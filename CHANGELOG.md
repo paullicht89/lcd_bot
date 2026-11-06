@@ -19,6 +19,10 @@ All notable changes to this project will be documented here.
 
 ### Changed
 
+- Dataverse lookups now accept existing `DV_BASE_URL`, `DV_TENANT_ID`, `DV_CLIENT_ID`, and `DV_CLIENT_SECRET` environment settings as fallbacks for `DATAVERSE_*` settings.
+
+- `/fbusers` now logs sanitized Dataverse diagnostics and displays specific recovery guidance for missing configuration, authentication, permissions, and throttling failures.
+
 - Splashtop authentication failures now explain that IT must replace the API token and restart the bot; diagnostic logs include safe HTTP/result codes.
 
 - Expanded the `help` Adaptive Card to the full Teams message width.

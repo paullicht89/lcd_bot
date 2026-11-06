@@ -13,6 +13,14 @@ if ENV_PATH.exists():
     load_dotenv(ENV_PATH)
 
 
+def _env_alias(primary: str, alias: str, default: str = "") -> str:
+    for name in (primary, alias):
+        value = os.getenv(name, "").strip()
+        if value:
+            return value
+    return default
+
+
 @dataclass(frozen=True)
 class Settings:
     microsoft_app_type: str = os.getenv("MicrosoftAppType", "SingleTenant")
@@ -28,11 +36,11 @@ class Settings:
     connecteam_api_key: str = os.getenv("CONNECTEAM_API_KEY", "")
     maptive_sync_secret: str = os.getenv("MAPTIVE_SYNC_SECRET", "")
     dataverse_sync_secret: str = os.getenv("DATAVERSE_SYNC_SECRET", "")
-    dataverse_url: str = os.getenv("DATAVERSE_URL", "https://lcdelevator.crm.dynamics.com")
+    dataverse_url: str = _env_alias("DATAVERSE_URL", "DV_BASE_URL", "https://lcdelevator.crm.dynamics.com")
     dataverse_access_token: str = os.getenv("DATAVERSE_ACCESS_TOKEN", "")
-    dataverse_tenant_id: str = os.getenv("DATAVERSE_TENANT_ID", "")
-    dataverse_client_id: str = os.getenv("DATAVERSE_CLIENT_ID", "")
-    dataverse_client_secret: str = os.getenv("DATAVERSE_CLIENT_SECRET", "")
+    dataverse_tenant_id: str = _env_alias("DATAVERSE_TENANT_ID", "DV_TENANT_ID")
+    dataverse_client_id: str = _env_alias("DATAVERSE_CLIENT_ID", "DV_CLIENT_ID")
+    dataverse_client_secret: str = _env_alias("DATAVERSE_CLIENT_SECRET", "DV_CLIENT_SECRET")
     splashtop_api_token: str = os.getenv("SPLASHTOP_API_TOKEN", "")
     splashtop_team_id: str = os.getenv("SPLASHTOP_TEAM_ID", "")
 

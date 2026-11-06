@@ -169,3 +169,74 @@ def test_retryable_errors(error):
     card = context.send_activity.call_args.args[0].attachments[0].content
     assert "private upstream details" not in str(card)
     assert card["actions"][0]["data"]["command"] == "fbusers.submit"
+
+
+def test_missing_configuration_logs_setting_names(caplog):
+    session = session_for()
+    with patch(f"{SERVICE}.settings", config(dataverse_access_token="", dataverse_tenant_id="",
+                                            dataverse_client_secret=" ")), patch(
+        f"{SERVICE}.aiohttp.ClientSession", return_value=session
+    ):
+        with pytest.raises(DataverseError) as raised:
+            asyncio.run(search_dataverse_users({"last_name": "Private Search"}))
+    assert "reason=missing_credentials" in caplog.text
+    assert "DATAVERSE_TENANT_ID, DATAVERSE_CLIENT_SECRET" in caplog.text
+    assert "restart the bot" in raised.value.user_message
+    assert "Private Search" not in caplog.text
+    assert "test-client" not in caplog.text
+    session.get.assert_not_called()
+    session.post.assert_not_called()
+
+
+@pytest.mark.parametrize("status,reason,hint", [
+    (401, "unauthorized", "DATAVERSE_ACCESS_TOKEN"),
+    (403, "forbidden", "security role"),
+    (429, "throttled", "wait a moment"),
+    (500, "query_http", "server logs"),
+])
+def test_http_failure_diagnostics_and_cards(caplog, status, reason, hint):
+    session = session_for(response({"error": {"message": "private upstream details"}}, status))
+    context = SimpleNamespace(send_activity=AsyncMock())
+    with patch(f"{SERVICE}.settings", config()), patch(
+        f"{SERVICE}.aiohttp.ClientSession", return_value=session
+    ):
+        asyncio.run(dispatch_card_action(context, {"command": "fbusers.submit", "last_name": "Private Search"}))
+    card = context.send_activity.call_args.args[0].attachments[0].content
+    assert hint in str(card)
+    assert f"reason={reason} status={status}" in caplog.text
+    for private in ("private upstream details", "Private Search", "test-token"):
+        assert private not in caplog.text + str(card)
+
+
+def test_token_endpoint_status_is_logged(caplog):
+    session = session_for()
+    session.post.return_value = response({"error_description": "private credential details"}, 400)
+    with patch(f"{SERVICE}.settings", config(dataverse_access_token="")), patch(
+        f"{SERVICE}.aiohttp.ClientSession", return_value=session
+    ):
+        with pytest.raises(DataverseError):
+            asyncio.run(search_dataverse_users({"last_name": "Private Search"}))
+    assert "reason=token_request status=400" in caplog.text
+    assert "private credential details" not in caplog.text
+    assert "test-secret" not in caplog.text
+
+
+def test_transport_logs_type_and_stage_without_exception_details(caplog):
+    session = session_for()
+    session.get.side_effect = aiohttp.ClientError("sensitive URL and query")
+    with patch(f"{SERVICE}.settings", config()), patch(
+        f"{SERVICE}.aiohttp.ClientSession", return_value=session
+    ):
+        with pytest.raises(DataverseError):
+            asyncio.run(search_dataverse_users({"last_name": "Private Search"}))
+    assert "stage=systemusers exception_type=ClientError" in caplog.text
+    assert "sensitive URL and query" not in caplog.text
+
+
+def test_invalid_url_is_sanitized(caplog):
+    with patch(f"{SERVICE}.settings", config(dataverse_url="https://[invalid")):
+        with pytest.raises(DataverseError) as raised:
+            asyncio.run(search_dataverse_users({"last_name": "Person"}))
+    assert "reason=invalid_url" in caplog.text
+    assert "DATAVERSE_URL" in raised.value.user_message
+    assert "https://[invalid" not in caplog.text
